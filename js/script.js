@@ -11,6 +11,8 @@ class Player {
             y: 0
         };
 
+        this.rotation = 0;
+
         const image = new Image();
         image.src = 'img/spaceship.png';
         image.onload = () => {
@@ -29,7 +31,23 @@ class Player {
     draw() {
         // c.fillStyle = 'red';
         // c.fillRect(this.position.x, this.position.y, this.width, this.height);
-        c.drawImage(this.image, this.position.x, this.position.y, this.width, this.height);
+        c.save();
+        c.translate(
+            player.position.x + player.width / 2,
+            player.position.y + player.height / 2
+        );
+        c.rotate(this.rotation);
+        c.translate(
+            -player.position.x - player.width / 2,
+            -player.position.y - player.height / 2
+        );
+        c.drawImage(
+            this.image,
+            this.position.x,
+            this.position.y,
+            this.width,
+            this.height);
+        c.restore();
     }
 
     update() {
@@ -59,12 +77,15 @@ function animate() {
     c.fillRect(0, 0, canvas.width, canvas.height)
     player.update();
 
-    if (keys.a.pressed) {
-        player.velocity.x = -5;
-    } else if (keys.d.pressed) {
-        player.velocity.x = 5;
+    if (keys.a.pressed && player.position.x >= 0) {
+        player.velocity.x = -7;
+        player.rotation = -0.15;
+    } else if (keys.d.pressed && player.position.x + player.width <= canvas.width) {
+        player.velocity.x = 7;
+        player.rotation = 0.15;
     } else {
         player.velocity.x = 0;
+        player.rotation = 0;
     }
 
 };
@@ -77,11 +98,9 @@ addEventListener('keydown', ({ key }) => {
             keys.a.pressed = true;
             break;
         case 'd':
-            console.log('right');
             keys.d.pressed = true;
             break;
         case ' ': //space
-            console.log('space');
             keys.space.pressed = true;
             break;
     }
