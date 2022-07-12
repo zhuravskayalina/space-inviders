@@ -106,7 +106,7 @@ class Projectile {
         this.position = position;
         this.velocity = velocity;
         this.color = color;
-        this.radius = 3;
+        this.radius = 4;
 
     }
 
@@ -163,7 +163,7 @@ class Grid {
         if (this.position.x + this.width >= canvas.width || this.position.x <= 0) {
             this.velocity.x = -this.velocity.x * 1.15
             this.velocity.y = 30
-          }
+        }
 
     }
 };
@@ -206,8 +206,36 @@ function animate() {
 
     grids.forEach(grid => {
         grid.update();
-        grid.invaders.forEach(invader => {
+        grid.invaders.forEach((invader, inviderIndex) => {
             invader.update({ velocity: grid.velocity });
+
+            projectiles.forEach((projectile, projectileIndex) => {
+                if (projectile.position.y - projectile.radius <= invader.position.y + invader.height
+                    && projectile.position.x + projectile.radius >= invader.position.x
+                    && projectile.position.x - projectile.radius <= invader.position.x + invader.width
+                    && projectile.position.y + projectile.radius >= invader.position.y) {
+                    setTimeout(() => {
+                        const invaderFound = grid.invaders.find(invader2 => {
+                            return invader2 === invader;
+                        });
+                        const projectileFound = projectiles.find(projectile2 => {
+                            return projectile2 === projectile;
+                        });
+                        if (invaderFound && projectileFound) { //remove projectile and invader
+                            grid.invaders.splice(inviderIndex, 1);
+                            projectiles.splice(projectileIndex, 1);
+
+                            if (grid.invaders.length > 0) {
+                                const firstInvader = grid.invaders[0];
+                                const lastInvader = grid.invaders[grid.invaders.length - 1];
+
+                                grid.width = lastInvader.position.x - firstInvader.position.x + lastInvader.width;
+                                grid.position.x = firstInvader.position.x;
+                            }
+                        };
+                    }, 0);
+                }
+            })
         })
     })
 
