@@ -152,26 +152,25 @@ class Grid {
                 }));
             };
         };
-        console.log(this.invaders);
     }
 
     update() {
         this.position.x += this.velocity.x;
         this.position.y += this.velocity.y;
 
-        this.velocity.y = 0; 
+        this.velocity.y = 0;
 
         if (this.position.x + this.width >= canvas.width || this.position.x <= 0) {
-            this.velocity.x = - this.velocity.x;
-            this.velocity.y = 30;
-        };
+            this.velocity.x = -this.velocity.x * 1.15
+            this.velocity.y = 30
+          }
 
     }
 };
 
 const player = new Player();
 const projectiles = [];
-const grids = [new Grid()];
+const grids = [];
 const keys = {
     a: {
         pressed: false,
@@ -184,7 +183,8 @@ const keys = {
     },
 };
 
-
+let frames = 0;
+let randomInterval = Math.floor(Math.random() * 500) + 500;
 
 function animate() {
     requestAnimationFrame(animate);
@@ -207,7 +207,7 @@ function animate() {
     grids.forEach(grid => {
         grid.update();
         grid.invaders.forEach(invader => {
-            invader.update({velocity: grid.velocity});
+            invader.update({ velocity: grid.velocity });
         })
     })
 
@@ -220,8 +220,16 @@ function animate() {
     } else {
         player.velocity.x = 0;
         player.rotation = 0;
-    }
+    };
 
+    //spawing enemies 
+    if (frames % randomInterval === 0) {
+        grids.push(new Grid());
+        randomInterval = Math.floor(Math.random() * 500) + 500;
+        frames = 0;
+    };
+
+    frames++;
 };
 
 animate();
