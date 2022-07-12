@@ -58,7 +58,32 @@ class Player {
     }
 };
 
+class Projectile {
+    constructor({ position, velocity, color = 'red' }) {
+        this.position = position;
+        this.velocity = velocity;
+        this.color = color;
+        this.radius = 3;
+
+    }
+
+    draw() {
+        c.beginPath();
+        c.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2);
+        c.fillStyle = this.color;
+        c.fill();
+        c.closePath();
+    }
+
+    update() {
+        this.draw();
+        this.position.x += this.velocity.x;
+        this.position.y += this.velocity.y;
+    }
+};
+
 const player = new Player();
+const projectiles = [];
 const keys = {
     a: {
         pressed: false,
@@ -77,6 +102,16 @@ function animate() {
     c.fillRect(0, 0, canvas.width, canvas.height)
     player.update();
 
+    projectiles.forEach((projectile, index) => {
+        if (projectile.position.x + projectile.radius <= 0) {
+            projectiles.splice(index, 1);
+        } else {
+            projectile.update();
+        }
+
+        projectile.update();
+    }); 
+
     if (keys.a.pressed && player.position.x >= 0) {
         player.velocity.x = -7;
         player.rotation = -0.15;
@@ -93,18 +128,32 @@ function animate() {
 animate();
 
 addEventListener('keydown', ({ key }) => {
+
     switch (key) {
         case 'a':
-            keys.a.pressed = true;
-            break;
+            keys.a.pressed = true
+            break
         case 'd':
-            keys.d.pressed = true;
-            break;
-        case ' ': //space
+            keys.d.pressed = true
+            break
+        case ' ':
+            console.log('space');
+            projectiles.push(
+                new Projectile({
+                    position: {
+                        x: player.position.x + player.width / 2,
+                        y: player.position.y
+                    },
+                    velocity: {
+                        x: 0,
+                        y: -10
+                    }
+                })
+            );
             keys.space.pressed = true;
             break;
     }
-});
+})
 
 addEventListener('keyup', ({ key }) => {
     switch (key) {
@@ -116,8 +165,6 @@ addEventListener('keyup', ({ key }) => {
             keys.d.pressed = false;
             break;
         case ' ': //space
-            console.log('space');
-            keys.space.pressed = false;
             break;
     }
 })
