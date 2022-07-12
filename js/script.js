@@ -99,6 +99,19 @@ class Invader {
 
         }
     }
+
+    shoot(invaderProjectiles) {
+        invaderProjectiles.push(new InvaderProjectile({
+            position: {
+                x: this.position.x + this.width / 2,
+                y: this.position.y + this.height
+            },
+            velocity: {
+                x: 0,
+                y: 5
+            }
+        }))
+    }
 };
 
 class Projectile {
@@ -116,6 +129,27 @@ class Projectile {
         c.fillStyle = this.color;
         c.fill();
         c.closePath();
+    }
+
+    update() {
+        this.draw();
+        this.position.x += this.velocity.x;
+        this.position.y += this.velocity.y;
+    }
+};
+
+class InvaderProjectile {
+    constructor({ position, velocity, color = 'red' }) {
+        this.position = position;
+        this.velocity = velocity;
+        this.color = color;
+        this.width = 3;
+        this.height = 10;
+    }
+
+    draw() {
+        c.fillStyle = 'white';
+        c.fillRect(this.position.x, this.position.y, this.width, this.height);
     }
 
     update() {
@@ -161,16 +195,17 @@ class Grid {
         this.velocity.y = 0;
 
         if (this.position.x + this.width >= canvas.width || this.position.x <= 0) {
-            this.velocity.x = -this.velocity.x * 1.15
-            this.velocity.y = 30
+            this.velocity.x = -this.velocity.x * 1.15;
+            this.velocity.y = 30;
         }
-
     }
 };
 
 const player = new Player();
 const projectiles = [];
 const grids = [];
+const invaderProjectiles = [];
+
 const keys = {
     a: {
         pressed: false,
@@ -192,6 +227,22 @@ function animate() {
     c.fillRect(0, 0, canvas.width, canvas.height);
     player.update();
 
+    invaderProjectiles.forEach((invaderProjectile, index) => {
+        if (invaderProjectile.position.y + invaderProjectile.height >= canvas.height) {
+            setTimeout(() => {
+                invaderProjectiles.splice(index, 1);
+            }, 0);
+        } else {
+            invaderProjectile.update();
+        };
+
+        if (invaderProjectile.position.y + invaderProjectile.height >= player.position.y 
+            && invaderProjectile.position.x + invaderProjectile.width >= player.position.x
+            && invaderProjectile.position.x <= player.position.x + player.width ) {
+            console.log('lose');
+        }
+    })
+
     projectiles.forEach((projectile, index) => {
         if (projectile.position.x + projectile.radius <= 0) {
             setTimeout(() => {
@@ -204,8 +255,13 @@ function animate() {
         projectile.update();
     });
 
-    grids.forEach(grid => {
+    grids.forEach((grid, gridIndex) => {
         grid.update();
+
+        if (frames % 100 === 0 && grid.invaders.length > 0) {
+            grid.invaders[Math.floor(Math.random() * grid.invaders.length)].shoot(invaderProjectiles);
+        };
+
         grid.invaders.forEach((invader, inviderIndex) => {
             invader.update({ velocity: grid.velocity });
 
@@ -231,6 +287,8 @@ function animate() {
 
                                 grid.width = lastInvader.position.x - firstInvader.position.x + lastInvader.width;
                                 grid.position.x = firstInvader.position.x;
+                            } else {
+                                grids.splice(gridIndex, 1)
                             }
                         };
                     }, 0);
@@ -256,6 +314,7 @@ function animate() {
         randomInterval = Math.floor(Math.random() * 500) + 500;
         frames = 0;
     };
+
 
     frames++;
 };
