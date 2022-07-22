@@ -12,6 +12,7 @@ class Player {
         };
 
         this.rotation = 0;
+        this.opacity = 1;
 
         const image = new Image();
         image.src = 'img/spaceship.png';
@@ -32,6 +33,7 @@ class Player {
         // c.fillStyle = 'red';
         // c.fillRect(this.position.x, this.position.y, this.width, this.height);
         c.save();
+        c.globalAlpha = this.opacity;
         c.translate(
             player.position.x + player.width / 2,
             player.position.y + player.height / 2
@@ -252,6 +254,11 @@ const keys = {
 
 let frames = 0;
 let randomInterval = Math.floor(Math.random() * 500) + 500;
+let game = {
+    over: false,
+    active: false
+
+};
 
 for (let i = 0; i < 100; i++) {
     particles.push(new Particle({
@@ -323,6 +330,8 @@ function animate() {
             && invaderProjectile.position.x <= player.position.x + player.width) {
             setTimeout(() => {
                 invaderProjectiles.splice(index, 1);
+                player.opacity = 0;
+                game.over = true;
             }, 0);
             
             // lose condition
@@ -422,6 +431,7 @@ function animate() {
 animate();
 
 addEventListener('keydown', ({ key }) => {
+    if (game.over) return;
 
     switch (key) {
         case 'a':
