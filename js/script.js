@@ -1,8 +1,9 @@
 const canvas = document.querySelector('canvas');
+const scoreEl = document.querySelector('#scoreEl');
 const c = canvas.getContext('2d');
 
-canvas.width = innerWidth;
-canvas.height = innerHeight;
+canvas.width = 1024;
+canvas.height = 576;
 
 class Player {
     constructor() {
@@ -252,12 +253,12 @@ const keys = {
     },
 };
 
+let score = 0;
 let frames = 0;
 let randomInterval = Math.floor(Math.random() * 500) + 500;
 let game = {
     over: false,
     active: true
-
 };
 
 for (let i = 0; i < 100; i++) {
@@ -387,8 +388,9 @@ function animate() {
                         const projectileFound = projectiles.find(projectile2 => {
                             return projectile2 === projectile;
                         });
-                        if (invaderFound && projectileFound) { //remove projectile and invader
-
+                        if (invaderFound && projectileFound) { //remove invader and projectile
+                            score += 100;
+                            scoreEl.innerHTML = score; 
                             createParticles({
                                 object: invader,
                                 fades: true
